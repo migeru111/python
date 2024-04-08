@@ -21,6 +21,42 @@ GIL
     一般的な言語では、マルチコアのCPUを利用する際に、コア数のスレッドを同時実行できる。
     しかし、Cpythonでは、１つのインタプリタープロセスではある時刻において１つのスレッドしか実行されない。
     つまりCpythonのマルチスレッドは完全に並行処理となる。その理由がGIL(global interpreter lock)
+    GILは一種の排他制御。
 
 良さげな説明
     https://zenn.dev/kaitolucifer/articles/1f0eda0ca1ed52#4.-concurrent.futures
+
+pythonの並行、並列処理関係のモジュール
+    threading
+        スレッドベースの並列処理
+        内部で、_threadを使っている。
+    multiprocessing
+        マルチプロセスを作成できる
+        GILによって、threadingだと並列処理ができないから、multipurocessingが実装されたと言われてる。
+        クロスプラットフォームで、linux,windowsの両方で動く。
+            linuxはfork()でサブプロセスを生成するが、windowsにはないため擬似fork()コマンドの処理を行っている。
+    concurrent.futures
+        threadingとmultiprocessingをさらにカプセル化して使いやすくしたモジュール。
+        現在concurrentモジュールには、futuresしかない。
+        futuresはFutureパターンのpython実装
+            https://ja.wikipedia.org/wiki/Future_パターン
+
+        以下２つのexecuterを選んで使用する
+            threadPoolExecuter
+                マルチスレッド(GILのために、並行処理)を実装できる
+                マルチスレッドのため、スレッド間のデータ共有が高速
+                I/Oバウンドなタスクに用いられる
+
+            processPoolExecuter
+                マルチプロセスを実装できる
+                複数プロセスを作り出して処理を行うため、GILの制約を受けずマルチコアCPUの恩恵を受けたプログラムが実装可能
+                CPUバウンドなタスクに用いられる
+
+    参考
+        threadPoolExecuter,processPoolExecuterの説明、
+            https://note.com/mega_gorilla/n/n3fe706a9a950
+        I/Oバウンド、CPUバウンド
+            https://yohei-a.hatenablog.jp/entry/20120205/1328432481
+            https://tech.nkhn37.net/pythoni-parallel-process-io-cpu-bound/
+
+
